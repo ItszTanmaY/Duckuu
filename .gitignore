@@ -1,0 +1,57 @@
+# ==============================================================================
+# Duckuu - Git Ignore Configuration
+# ==============================================================================
+
+# Environment & Secret Credentials (CRITICAL: NEVER COMMIT SECRETS)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local Runtime Memory & User Workspaces
+duckuu.db
+duckuu.db-journal
+duckuu.db-wal
+duckuu.db-shm
+duckuu_memory/
+Duckuu_Artifacts/
+Duckuu_Workspace/
+backend/cache/
+cache/
+
+# Testing & Execution Caches
+.pytest_cache/
+*.log
+*.sqlite
+*.sqlite3
+test_screen.png
+*.pdf
+
+# Node & Build Output
+node_modules/
+dist/
+dist-electron/
+coverage/
+.nyc_output/
+*.local
+
+# Python Artifacts & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+backend/.venv/
+.venv/
+env/
+venv/
+*.egg-info/
+.coverage
+htmlcov/
+
+# Operating System & Editor Metadata
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*~

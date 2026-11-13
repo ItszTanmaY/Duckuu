@@ -1,0 +1,146 @@
+/* Duck Character Animation Keyframes & States */
+@keyframes duck-breathe {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+  }
+  50% {
+    transform: scale(1.02, 0.98) translateY(-2px);
+  }
+}
+
+@keyframes duck-waddle {
+  0%, 100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  25% {
+    transform: translateX(3px) rotate(3deg) translateY(-4px);
+  }
+  75% {
+    transform: translateX(-3px) rotate(-3deg) translateY(-4px);
+  }
+}
+
+@keyframes duck-sit {
+  0%, 100% {
+    transform: scale(1.06, 0.92) translateY(4px);
+  }
+  50% {
+    transform: scale(1.07, 0.91) translateY(5px);
+  }
+}
+
+@keyframes duck-bop {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(4deg);
+  }
+}
+
+@keyframes duck-speak-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes duck-beak-flap {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.45) translateY(1.5px);
+  }
+}
+
+@keyframes duck-sleep-loaf {
+  0%, 100% {
+    transform: scale(1.18, 0.72) translateY(10px);
+  }
+  50% {
+    transform: scale(1.20, 0.70) translateY(11px);
+  }
+}
+
+@keyframes duck-foot-left {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes duck-foot-right {
+  0%, 100% {
+    transform: translateY(-5px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes duck-zzz-float {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(10px, -15px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(18px, -30px) scale(1.2);
+  }
+}
+
+.duck-state-idle {
+  animation: duck-breathe 3.2s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.duck-state-walking {
+  animation: duck-waddle 0.55s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.duck-state-sitting {
+  animation: duck-sit 4s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.duck-state-listening {
+  animation: duck-bop 0.75s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.duck-state-speaking {
+  animation: duck-speak-bounce 0.32s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.duck-beak-speaking {
+  animation: duck-beak-flap 0.22s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.duck-state-sleeping {
+  animation: duck-sleep-loaf 4.5s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.duck-walking-foot-left {
+  animation: duck-foot-left 0.55s ease-in-out infinite;
+}
+
+.duck-walking-foot-right {
+  animation: duck-foot-right 0.55s ease-in-out infinite;
+}
+
+.duck-zzz-particle {
+  animation: duck-zzz-float 2.4s ease-out infinite;
+}

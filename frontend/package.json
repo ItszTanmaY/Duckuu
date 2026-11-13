@@ -1,0 +1,11 @@
+{
+  "name": "duckuu-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run --prefix .. dev",
+    "build": "npm run --prefix .. build",
+    "build:electron": "npm run --prefix .. build:electron",
+    "start": "npm run --prefix .. start"
+  }
+}

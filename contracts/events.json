@@ -1,0 +1,212 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DuckuuWebSocketEvents",
+  "description": "Bi-directional WebSocket protocol events between Electron frontend and FastAPI backend",
+  "definitions": {
+    "PetEmotion": {
+      "type": "string",
+      "enum": [
+        "idle",
+        "roaming",
+        "sleeping",
+        "waking",
+        "happy",
+        "annoyed",
+        "listening",
+        "thinking",
+        "working",
+        "done",
+        "confused",
+        "vibing",
+        "speaking",
+        "sad",
+        "surprised"
+      ]
+    },
+    "ChatChunkEvent": {
+      "type": "object",
+      "required": ["type", "conversation_id", "message_id", "delta", "index"],
+      "properties": {
+        "type": { "const": "CHAT_CHUNK" },
+        "conversation_id": { "type": "string" },
+        "message_id": { "type": "string" },
+        "delta": { "type": "string" },
+        "index": { "type": "integer" }
+      }
+    },
+    "ChatCompleteEvent": {
+      "type": "object",
+      "required": ["type", "conversation_id", "message_id", "full_content", "provider", "is_online"],
+      "properties": {
+        "type": { "const": "CHAT_COMPLETE" },
+        "conversation_id": { "type": "string" },
+        "message_id": { "type": "string" },
+        "full_content": { "type": "string" },
+        "provider": { "type": "string" },
+        "is_online": { "type": "boolean" },
+        "duration_ms": { "type": "number" }
+      }
+    },
+    "PetStateChangeEvent": {
+      "type": "object",
+      "required": ["type", "emotion"],
+      "properties": {
+        "type": { "const": "PET_STATE_CHANGE" },
+        "emotion": { "$ref": "#/definitions/PetEmotion" },
+        "reason": { "type": "string" },
+        "duration_ms": { "type": "integer" }
+      }
+    },
+    "OnlineStatusBadgeEvent": {
+      "type": "object",
+      "required": ["type", "is_online", "provider", "model"],
+      "properties": {
+        "type": { "const": "ONLINE_STATUS_BADGE" },
+        "is_online": { "type": "boolean" },
+        "provider": { "type": "string" },
+        "model": { "type": "string" }
+      }
+    },
+    "ApprovalRequiredEvent": {
+      "type": "object",
+      "required": ["type", "request_id", "tool_name", "parameters", "risk_level", "description", "timeout_seconds"],
+      "properties": {
+        "type": { "const": "APPROVAL_REQUIRED" },
+        "request_id": { "type": "string" },
+        "tool_name": { "type": "string" },
+        "parameters": { "type": "object" },
+        "risk_level": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"] },
+        "description": { "type": "string" },
+        "timeout_seconds": { "type": "integer" }
+      }
+    },
+    "ClientApprovalDecisionEvent": {
+      "type": "object",
+      "required": ["type", "request_id", "decision"],
+      "properties": {
+        "type": { "const": "APPROVAL_DECISION" },
+        "request_id": { "type": "string" },
+        "decision": { "type": "string", "enum": ["once", "always", "deny"] }
+      }
+    },
+    "ToolExecutionEvent": {
+      "type": "object",
+      "required": ["type", "tool_name", "status"],
+      "properties": {
+        "type": { "const": "TOOL_EXECUTION" },
+        "tool_name": { "type": "string" },
+        "status": { "type": "string", "enum": ["STARTING", "BLOCKED_ON_APPROVAL", "RUNNING", "COMPLETED", "DENIED", "FAILED"] },
+        "result": { "type": "object" },
+        "error": { "type": "string" }
+      }
+    },
+    "TaskProgressEvent": {
+      "type": "object",
+      "required": ["type", "task_id", "step", "progress_percent", "details"],
+      "properties": {
+        "type": { "const": "TASK_PROGRESS" },
+        "task_id": { "type": "string" },
+        "step": { "type": "string" },
+        "progress_percent": { "type": "integer" },
+        "details": { "type": "string" },
+        "sources": { "type": "array" }
+      }
+    },
+    "PdfSummaryCardEvent": {
+      "type": "object",
+      "required": ["type", "library_id", "title", "summary", "key_takeaways", "page_count"],
+      "properties": {
+        "type": { "const": "PDF_SUMMARY_CARD" },
+        "library_id": { "type": "string" },
+        "title": { "type": "string" },
+        "filename": { "type": "string" },
+        "page_count": { "type": "integer" },
+        "word_count": { "type": "integer" },
+        "detected_tables_count": { "type": "integer" },
+        "summary": { "type": "string" },
+        "key_takeaways": { "type": "array", "items": { "type": "string" } },
+        "citations": { "type": "array", "items": { "type": "string" } },
+        "tables": { "type": "array" }
+      }
+    },
+    "DeadlineAlertEvent": {
+      "type": "object",
+      "required": ["type", "assignment_id", "title", "course_batch", "due_date", "is_overdue", "pending_student_count"],
+      "properties": {
+        "type": { "const": "DEADLINE_ALERT" },
+        "assignment_id": { "type": "string" },
+        "title": { "type": "string" },
+        "course_batch": { "type": "string" },
+        "due_date": { "type": "string" },
+        "priority": { "type": "string" },
+        "is_overdue": { "type": "boolean" },
+        "hours_remaining": { "type": "number" },
+        "pending_student_count": { "type": "integer" },
+        "pending_students": { "type": "array" },
+        "timestamp": { "type": "string" }
+      }
+    },
+    "SpeechPillEvent": {
+      "type": "object",
+      "required": ["type", "text"],
+      "properties": {
+        "type": { "const": "SPEECH_PILL" },
+        "text": { "type": "string" },
+        "duration_ms": { "type": "integer", "default": 2500 },
+        "level": { "type": "string", "enum": ["info", "success", "working", "dictating"] }
+      }
+    },
+    "ClientChatMessageEvent": {
+      "type": "object",
+      "required": ["type", "conversation_id", "message"],
+      "properties": {
+        "type": { "const": "CHAT_MESSAGE" },
+        "conversation_id": { "type": "string" },
+        "message": { "type": "string" },
+        "mode": {
+          "type": "string",
+          "enum": ["general", "research", "student", "files"],
+          "default": "general"
+        }
+      }
+    },
+    "ClientPetInteractionEvent": {
+      "type": "object",
+      "required": ["type", "interaction"],
+      "properties": {
+        "type": { "const": "PET_INTERACTION" },
+        "interaction": {
+          "type": "string",
+          "enum": ["click", "pet", "drag_start", "drag_end", "scold_rapid_clicks", "shake"]
+        },
+        "intensity": { "type": "number" }
+      }
+    },
+    "ErrorEvent": {
+      "type": "object",
+      "required": ["type", "message"],
+      "properties": {
+        "type": { "const": "ERROR" },
+        "code": { "type": "string" },
+        "message": { "type": "string" },
+        "details": { "type": "object" }
+      }
+    },
+    "PingEvent": {
+      "type": "object",
+      "required": ["type", "timestamp"],
+      "properties": {
+        "type": { "const": "PING" },
+        "timestamp": { "type": "number" }
+      }
+    },
+    "PongEvent": {
+      "type": "object",
+      "required": ["type", "timestamp"],
+      "properties": {
+        "type": { "const": "PONG" },
+        "timestamp": { "type": "number" }
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "name": "duckuu",
+  "version": "1.0.0",
+  "description": "Windows-first, local-first animated desktop AI duck companion and OS agent",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev:backend": "cross-env PYTHONPATH=. python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload",
+    "dev:frontend": "vite",
+    "dev:vite": "vite",
+    "dev:electron-build": "tsc -p tsconfig.electron.json -w",
+    "dev:electron": "electron .",
+    "dev": "concurrently -k -n \"BACKEND,VITE,ELECTRON-BUILD,APP\" -c \"blue,green,magenta,yellow\" \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:electron-build\" \"npm run dev:electron\"",
+    "build:vite": "vite build",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "start": "electron .",
+    "start:backend": "cross-env PYTHONPATH=. python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000",
+    "build": "npm run build:vite && npm run build:electron",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "desktop-pet",
+    "ai-agent",
+    "ollama",
+    "electron",
+    "windows"
+  ],
+  "author": "Duckuu Team",
+  "license": "MIT",
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.475.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^34.2.0",
+    "electron-builder": "^25.1.8",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0"
+  }
+}

@@ -1,0 +1,1123 @@
+openapi: 3.1.0
+info:
+  title: Duckuu OS Agent API
+  version: 2.0.0
+  description: Core local-first API contract for Duckuu animated desktop AI companion & OS agent.
+servers:
+  - url: http://127.0.0.1:8765
+    description: Local Duckuu Python Agent Server
+paths:
+  /health:
+    get:
+      summary: System health & connectivity status
+      operationId: getHealth
+      responses:
+        '200':
+          description: Health check details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /api/conversations:
+    get:
+      summary: List all conversation sessions
+      operationId: listConversations
+      responses:
+        '200':
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Conversation'
+    post:
+      summary: Create a new conversation session
+      operationId: createConversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConversationRequest'
+      responses:
+        '201':
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conversation'
+
+  /api/conversations/{conversation_id}:
+    get:
+      summary: Get conversation with message history
+      operationId: getConversation
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Conversation details and messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationDetail'
+        '404':
+          description: Conversation not found
+    delete:
+      summary: Delete a conversation
+      operationId: deleteConversation
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Conversation deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardResponse'
+
+  /api/chat:
+    post:
+      summary: Send a message to Duckuu
+      operationId: sendMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatMessageRequest'
+      responses:
+        '200':
+          description: Generated response from Duckuu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMessageResponse'
+
+  /api/settings:
+    get:
+      summary: Get application settings
+      operationId: getSettings
+      responses:
+        '200':
+          description: Current settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppSettings'
+    put:
+      summary: Update application settings
+      operationId: updateSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSettingsRequest'
+      responses:
+        '200':
+          description: Settings successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppSettings'
+
+  /api/audit:
+    get:
+      summary: Retrieve audit logs
+      operationId: getAuditLogs
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated audit logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogsResponse'
+
+  /api/pet/state:
+    get:
+      summary: Get current Duckuu pet state
+      operationId: getPetState
+      responses:
+        '200':
+          description: Current pet emotional and physical state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetState'
+    post:
+      summary: Update Duckuu pet state
+      operationId: setPetState
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetPetStateRequest'
+      responses:
+        '200':
+          description: Updated pet state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetState'
+
+  # Phase 2 Endpoints: Zero-Trust Approval Gate
+  /api/approval/pending:
+    get:
+      summary: List all currently pending approval gate requests
+      operationId: getPendingApprovals
+      responses:
+        '200':
+          description: Active pending approvals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApprovalRequest'
+
+  /api/approval/decide:
+    post:
+      summary: Submit a decision for a pending approval request
+      operationId: decideApproval
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalDecisionRequest'
+      responses:
+        '200':
+          description: Decision processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardResponse'
+
+  /api/approval/rules:
+    get:
+      summary: Get list of persistent Always Allow approval rules
+      operationId: getApprovalRules
+      responses:
+        '200':
+          description: List of active approval rules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApprovalRule'
+
+  # Phase 2 Endpoints: PC Agent Tools & Window Tracking
+  /api/agent/tools:
+    get:
+      summary: List available PC agent tools
+      operationId: getAgentTools
+      responses:
+        '200':
+          description: Available agent tools and metadata
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AgentToolInfo'
+
+  /api/agent/execute:
+    post:
+      summary: Execute an agent tool directly
+      operationId: executeAgentTool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecuteToolRequest'
+      responses:
+        '200':
+          description: Tool execution result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecuteToolResponse'
+
+  /api/agent/active-window:
+    get:
+      summary: Get active foreground window title and titlebar coordinates
+      operationId: getActiveWindow
+      responses:
+        '200':
+          description: Active window geometry and title
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveWindowInfo'
+
+  # Phase 2 Endpoints: Voice & Dictation Engine
+  /api/voice/dictate:
+    post:
+      summary: Transcribe audio and clean filler words for OS text injection
+      operationId: transcribeDictation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DictationRequest'
+      responses:
+        '200':
+          description: Cleaned transcription
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DictationResponse'
+
+  # Phase 3 Endpoints: PDF Intelligence, Library & Deep Research
+  /api/pdf/analyze:
+    post:
+      summary: Parse PDF and extract executive summary with page citations
+      operationId: analyzePdf
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                filename:
+                  type: string
+      responses:
+        '200':
+          description: PDF analysis result with citations and summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PdfAnalysisResponse'
+
+  /api/library:
+    get:
+      summary: List indexed documents, PDFs, and deep research dossiers
+      operationId: listLibraryItems
+      parameters:
+        - name: query
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: item_type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pdf, research_report, document, note]
+      responses:
+        '200':
+          description: Paginated library items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryListResponse'
+
+  /api/library/{item_id}:
+    get:
+      summary: Retrieve a full library item with content and metadata
+      operationId: getLibraryItem
+      parameters:
+        - name: item_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Full library item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryItemDetail'
+    delete:
+      summary: Delete an item from the library
+      operationId: deleteLibraryItem
+      parameters:
+        - name: item_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Delete confirmation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardResponse'
+
+  /api/research:
+    post:
+      summary: Run autonomous multi-source deep research task
+      operationId: runDeepResearch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query:
+                  type: string
+                max_sources:
+                  type: integer
+                  default: 5
+      responses:
+        '200':
+          description: Research dossier report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchReportResponse'
+
+  # Phase 4 Endpoints: Student Roster, Assignments & WhatsApp Dispatch
+  /api/students:
+    get:
+      summary: List enrolled students with pending assignment counts
+      operationId: listStudents
+      parameters:
+        - name: batch
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of students
+    post:
+      summary: Create a new student
+      operationId: createStudent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, phone, course_batch]
+              properties:
+                name: { type: string }
+                phone: { type: string }
+                email: { type: string }
+                course_batch: { type: string }
+                tags: { type: array, items: { type: string } }
+                preferred_channel: { type: string }
+      responses:
+        '200':
+          description: Created student record
+
+  /api/students/import-csv:
+    post:
+      summary: Batch import students from CSV content
+      operationId: importStudentsCsv
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [csv_text]
+              properties:
+                csv_text: { type: string }
+                default_batch: { type: string }
+      responses:
+        '200':
+          description: Import results with counts
+
+  /api/students/draft-reminders:
+    post:
+      summary: Draft AI assignment reminders for students with pending work
+      operationId: draftStudentReminders
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                course_batch: { type: string }
+                student_id: { type: string }
+      responses:
+        '200':
+          description: Drafted reminder cards
+
+  /api/students/send-reminder:
+    post:
+      summary: Send a single WhatsApp reminder with Zero-Trust approval gate
+      operationId: sendStudentReminder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [student_id, student_name, phone, message]
+              properties:
+                student_id: { type: string }
+                student_name: { type: string }
+                phone: { type: string }
+                message: { type: string }
+                channel: { type: string }
+                assignment_ids: { type: array, items: { type: string } }
+      responses:
+        '200':
+          description: Dispatch outcome
+
+  /api/assignments:
+    get:
+      summary: List assignments and submission counts
+      operationId: listAssignments
+      parameters:
+        - name: batch
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: priority
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Assignments list
+    post:
+      summary: Create assignment and auto-map to batch students
+      operationId: createAssignment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, course_batch, due_date]
+              properties:
+                title: { type: string }
+                description: { type: string }
+                course_batch: { type: string }
+                due_date: { type: string }
+                priority: { type: string }
+                status: { type: string }
+      responses:
+        '200':
+          description: Created assignment
+
+  /api/assignments/check-deadlines:
+    post:
+      summary: Trigger deadline urgency check manually
+      operationId: checkDeadlines
+      responses:
+        '200':
+          description: Urgent and overdue deadline alerts
+
+  /api/assignments/{assignment_id}/attachment:
+    put:
+      summary: Link or unlink a library document/PDF to an assignment
+      operationId: linkAssignmentAttachment
+      parameters:
+        - name: assignment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                attachment_id: { type: string, nullable: true }
+      responses:
+        '200':
+          description: Attachment linked successfully
+
+  /api/subjects:
+    get:
+      summary: List user's enrolled semester subjects
+      operationId: listSubjects
+      responses:
+        '200':
+          description: Subjects list
+    post:
+      summary: Add a new subject to semester roster
+      operationId: createSubject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, code]
+              properties:
+                name: { type: string }
+                code: { type: string }
+                semester: { type: string }
+                instructor: { type: string }
+                color: { type: string }
+      responses:
+        '200':
+          description: Created subject
+
+  /api/assignments/triage/ingest:
+    post:
+      summary: Ingest and parse student group chat text into triage feed
+      operationId: ingestGroupUpdates
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [raw_text]
+              properties:
+                raw_text: { type: string }
+                source: { type: string }
+      responses:
+        '200':
+          description: Extracted triage items
+
+  /api/assignments/triage/feed:
+    get:
+      summary: List pending triage feed items
+      operationId: listTriageFeed
+      responses:
+        '200':
+          description: Triage feed list
+
+  /api/assignments/triage/{triage_id}/convert:
+    post:
+      summary: Convert a triage item to a personal assignment
+      operationId: convertTriageItem
+      parameters:
+        - name: triage_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Converted assignment details
+
+  /api/v1/assignments:
+    get:
+      summary: V1 compatibility alias for list assignments
+      operationId: listAssignmentsV1
+      responses:
+        '200':
+          description: Assignments list
+    post:
+      summary: V1 compatibility alias for create assignment
+      operationId: createAssignmentV1
+      responses:
+        '200':
+          description: Created assignment
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - database
+        - llm_router
+        - version
+      properties:
+        status:
+          type: string
+          example: healthy
+        database:
+          type: string
+          example: connected
+        llm_router:
+          $ref: '#/components/schemas/LLMRouterStatus'
+        version:
+          type: string
+          example: 2.0.0
+
+    LLMRouterStatus:
+      type: object
+      required:
+        - active_provider
+        - model
+        - is_online
+        - available_local_models
+      properties:
+        active_provider:
+          type: string
+          enum: [ollama, groq, gemini, openai, fallback]
+        model:
+          type: string
+        is_online:
+          type: boolean
+        available_local_models:
+          type: array
+          items:
+            type: string
+
+    Conversation:
+      type: object
+      required:
+        - id
+        - title
+        - mode
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        mode:
+          type: string
+          enum: [general, research, student, files]
+        created_at:
+          type: string
+        updated_at:
+          type: string
+
+    ConversationDetail:
+      allOf:
+        - $ref: '#/components/schemas/Conversation'
+        - type: object
+          required:
+            - messages
+          properties:
+            messages:
+              type: array
+              items:
+                $ref: '#/components/schemas/Message'
+
+    CreateConversationRequest:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+        mode:
+          type: string
+          enum: [general, research, student, files]
+          default: general
+
+    Message:
+      type: object
+      required:
+        - id
+        - conversation_id
+        - role
+        - content
+        - created_at
+      properties:
+        id:
+          type: string
+        conversation_id:
+          type: string
+        role:
+          type: string
+          enum: [user, assistant, system]
+        content:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+
+    ChatMessageRequest:
+      type: object
+      required:
+        - conversation_id
+        - message
+      properties:
+        conversation_id:
+          type: string
+        message:
+          type: string
+        mode:
+          type: string
+          enum: [general, research, student, files]
+          default: general
+
+    ChatMessageResponse:
+      type: object
+      required:
+        - conversation_id
+        - message_id
+        - role
+        - content
+        - provider
+        - is_online
+      properties:
+        conversation_id:
+          type: string
+        message_id:
+          type: string
+        role:
+          type: string
+        content:
+          type: string
+        provider:
+          type: string
+        is_online:
+          type: boolean
+
+    AppSettings:
+      type: object
+      required:
+        - llm_provider
+        - ollama_model
+        - cloud_provider
+        - audio_enabled
+        - pet_speed
+        - auto_dock
+      properties:
+        llm_provider:
+          type: string
+          enum: [auto, ollama, groq, gemini, openai]
+        ollama_model:
+          type: string
+        cloud_provider:
+          type: string
+          enum: [groq, gemini, openai]
+        groq_api_key_configured:
+          type: boolean
+        gemini_api_key_configured:
+          type: boolean
+        openai_api_key_configured:
+          type: boolean
+        audio_enabled:
+          type: boolean
+        pet_speed:
+          type: number
+        auto_dock:
+          type: boolean
+
+    UpdateSettingsRequest:
+      type: object
+      properties:
+        llm_provider:
+          type: string
+          enum: [auto, ollama, groq, gemini, openai]
+        ollama_model:
+          type: string
+        cloud_provider:
+          type: string
+          enum: [groq, gemini, openai]
+        groq_api_key:
+          type: string
+        gemini_api_key:
+          type: string
+        openai_api_key:
+          type: string
+        audio_enabled:
+          type: boolean
+        pet_speed:
+          type: number
+        auto_dock:
+          type: boolean
+
+    AuditLogItem:
+      type: object
+      required:
+        - id
+        - timestamp
+        - category
+        - action
+        - status
+        - details
+      properties:
+        id:
+          type: integer
+        timestamp:
+          type: string
+        category:
+          type: string
+        action:
+          type: string
+        status:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+
+    AuditLogsResponse:
+      type: object
+      required:
+        - total
+        - logs
+      properties:
+        total:
+          type: integer
+        logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLogItem'
+
+    PetState:
+      type: object
+      required:
+        - emotion
+        - activity
+        - energy
+        - is_grounded
+        - x
+        - y
+      properties:
+        emotion:
+          type: string
+          enum:
+            - idle
+            - roaming
+            - sleeping
+            - waking
+            - happy
+            - annoyed
+            - listening
+            - thinking
+            - working
+            - done
+            - confused
+            - vibing
+        activity:
+          type: string
+        energy:
+          type: number
+        is_grounded:
+          type: boolean
+        x:
+          type: number
+        y:
+          type: number
+
+    SetPetStateRequest:
+      type: object
+      required:
+        - emotion
+      properties:
+        emotion:
+          type: string
+        activity:
+          type: string
+        energy:
+          type: number
+
+    # Phase 2 Schemas
+    ApprovalRequest:
+      type: object
+      required:
+        - request_id
+        - tool_name
+        - parameters
+        - risk_level
+        - description
+        - created_at
+        - timeout_seconds
+      properties:
+        request_id:
+          type: string
+        tool_name:
+          type: string
+        parameters:
+          type: object
+          additionalProperties: true
+        risk_level:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, CRITICAL]
+        description:
+          type: string
+        created_at:
+          type: string
+        timeout_seconds:
+          type: integer
+          default: 30
+
+    ApprovalDecisionRequest:
+      type: object
+      required:
+        - request_id
+        - decision
+      properties:
+        request_id:
+          type: string
+        decision:
+          type: string
+          enum: [once, always, deny]
+
+    ApprovalRule:
+      type: object
+      required:
+        - id
+        - tool_name
+        - pattern
+        - allowed_always
+        - created_at
+      properties:
+        id:
+          type: integer
+        tool_name:
+          type: string
+        pattern:
+          type: string
+        allowed_always:
+          type: boolean
+        created_at:
+          type: string
+
+    AgentToolInfo:
+      type: object
+      required:
+        - name
+        - description
+        - parameters
+        - requires_approval
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        parameters:
+          type: object
+          additionalProperties: true
+        requires_approval:
+          type: boolean
+
+    ExecuteToolRequest:
+      type: object
+      required:
+        - tool_name
+        - parameters
+      properties:
+        tool_name:
+          type: string
+        parameters:
+          type: object
+          additionalProperties: true
+
+    ExecuteToolResponse:
+      type: object
+      required:
+        - success
+        - tool_name
+        - result
+      properties:
+        success:
+          type: boolean
+        tool_name:
+          type: string
+        result:
+          type: object
+          additionalProperties: true
+        error:
+          type: string
+
+    ActiveWindowInfo:
+      type: object
+      required:
+        - title
+        - is_valid
+        - x
+        - y
+        - width
+        - height
+        - titlebar_y
+      properties:
+        title:
+          type: string
+        process_name:
+          type: string
+        is_valid:
+          type: boolean
+        x:
+          type: integer
+        y:
+          type: integer
+        width:
+          type: integer
+        height:
+          type: integer
+        titlebar_y:
+          type: integer
+
+    DictationRequest:
+      type: object
+      required:
+        - audio_base64
+      properties:
+        audio_base64:
+          type: string
+        clean_with_llm:
+          type: boolean
+          default: true
+
+    DictationResponse:
+      type: object
+      required:
+        - raw_text
+        - clean_text
+        - duration_ms
+      properties:
+        raw_text:
+          type: string
+        clean_text:
+          type: string
+        duration_ms:
+          type: integer
+
+    StandardResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
